@@ -11,64 +11,65 @@
 
     <div id="loginOverlay" class="fixed inset-0 bg-[#0b0e14] flex items-center justify-center z-50">
         <div class="bg-slate-900 p-10 rounded-3xl border border-white/5 w-[400px] text-center shadow-2xl">
-            <h2 class="text-3xl font-black mb-6">Acesso Master</h2>
-            <input type="password" id="pass" placeholder="Senha" class="w-full bg-black/40 p-5 rounded-2xl mb-4 border border-white/5 outline-none focus:border-blue-500 text-center tracking-[5px]">
-            <button onclick="login()" class="w-full bg-blue-600 py-5 rounded-2xl font-black hover:bg-blue-500 transition">ENTRAR</button>
-            <button onclick="location.href='index.html'" class="mt-4 text-slate-500 text-sm">Voltar</button>
+            <h2 class="text-3xl font-black mb-6 italic">MASTER ACCESS</h2>
+            <input type="password" id="pass" placeholder="SENHA" class="w-full bg-black/40 p-5 rounded-2xl mb-4 border border-white/5 outline-none focus:border-blue-500 text-center tracking-[10px]">
+            <button onclick="login()" class="w-full bg-blue-600 py-5 rounded-2xl font-black hover:bg-blue-500 transition active:scale-95 shadow-lg shadow-blue-900/20">ENTRAR</button>
         </div>
     </div>
 
     <div id="adminContent" class="hidden max-w-6xl mx-auto p-8">
-        <div class="flex justify-between items-center mb-10 bg-slate-900/50 p-6 rounded-3xl border border-white/5">
-            <h1 id="panelTitle" class="text-2xl font-black italic">NOVO ASSET</h1>
-            <div class="flex gap-2">
+        <div class="flex justify-between items-center mb-8 bg-slate-900 p-6 rounded-3xl border border-white/5">
+            <h1 id="panelTitle" class="text-2xl font-black">CRIAR NOVO</h1>
+            <div class="flex gap-3">
                 <button onclick="switchTab('create')" id="tabCreate" class="px-6 py-3 rounded-xl font-bold bg-blue-600">Criar</button>
-                <button onclick="switchTab('manage')" id="tabManage" class="px-6 py-3 rounded-xl font-bold bg-slate-800">Meus Assets</button>
-                <button onclick="location.href='index.html'" class="px-4 py-3 rounded-xl bg-red-600/10 text-red-500">Sair</button>
+                <button onclick="switchTab('manage')" id="tabManage" class="px-6 py-3 rounded-xl font-bold bg-slate-800">Gerenciar</button>
+                <button onclick="location.href='index.html'" class="px-4 py-3 rounded-xl bg-red-500/10 text-red-500">Sair</button>
             </div>
         </div>
 
-        <div id="sectionForm" class="animate__animated animate__fadeIn">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="bg-slate-900 p-8 rounded-3xl border border-white/5 space-y-4">
-                    <input type="hidden" id="editId">
-                    <label class="block text-blue-400 font-bold">Título</label>
-                    <input type="text" id="assetTitle" class="w-full bg-black/50 p-4 rounded-xl border border-white/5 outline-none">
-                    
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-blue-400 font-bold">Status</label>
-                            <select id="assetStatus" class="w-full bg-black/50 p-4 rounded-xl border border-white/5">
-                                <option value="nenhum">Nenhum</option>
-                                <option value="novo">Novo</option>
-                                <option value="limitado">Limitado</option>
-                                <option value="recomendado">Recomendado</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-red-400 font-bold">Falha</label>
-                            <select id="assetFail" class="w-full bg-black/50 p-4 rounded-xl border border-white/5">
-                                <option value="none">Nenhuma</option>
-                                <option value="404">Erro 404</option>
-                                <option value="virus">Vírus</option>
-                                <option value="limit">Limite</option>
-                            </select>
-                        </div>
+        <div id="sectionForm" class="grid grid-cols-1 md:grid-cols-2 gap-8 animate__animated animate__fadeIn">
+            <div class="bg-slate-900 p-8 rounded-3xl border border-white/5 space-y-4">
+                <input type="hidden" id="editId">
+                <label class="block font-bold text-blue-400">Título do Asset</label>
+                <input type="text" id="assetTitle" class="w-full bg-black/50 p-4 rounded-xl border border-white/5 outline-none">
+                
+                <label class="block font-bold text-blue-400">Link do Download (MediaFire, GDrive, etc)</label>
+                <input type="text" id="assetFileUrl" placeholder="https://..." class="w-full bg-black/50 p-4 rounded-xl border border-white/5 outline-none">
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-bold text-blue-400">Status</label>
+                        <select id="assetStatus" class="w-full bg-black/50 p-4 rounded-xl border border-white/5">
+                            <option value="nenhum">Nenhum</option>
+                            <option value="novo">Novo</option>
+                            <option value="limitado">Limitado</option>
+                            <option value="recomendado">Recomendado</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-red-400">Falha</label>
+                        <select id="assetFail" class="w-full bg-black/50 p-4 rounded-xl border border-white/5">
+                            <option value="none">Nenhuma</option>
+                            <option value="404">Erro 404</option>
+                            <option value="virus">Vírus</option>
+                            <option value="limit">Limite</option>
+                        </select>
                     </div>
                 </div>
+            </div>
 
-                <div class="bg-slate-900 p-8 rounded-3xl border border-white/5 space-y-4">
-                    <label class="block text-blue-400 font-bold">Arquivos (Capa e Download)</label>
-                    <input type="file" id="assetImg" accept="image/*" class="w-full text-sm">
-                    <input type="file" id="assetFile" class="w-full text-sm">
-                    <button id="mainBtn" onclick="saveAsset()" class="w-full bg-green-600 py-6 rounded-2xl font-black text-xl mt-4">SALVAR ASSET</button>
-                    <button id="cancelBtn" onclick="resetForm()" class="hidden w-full text-slate-500">Cancelar Edição</button>
+            <div class="bg-slate-900 p-8 rounded-3xl border border-white/5 flex flex-col justify-between">
+                <div>
+                    <label class="block font-bold text-blue-400 mb-2">Capa (Upload do PC)</label>
+                    <input type="file" id="assetImg" accept="image/*" class="w-full text-sm text-slate-500 file:bg-blue-600 file:text-white file:rounded-full file:border-0 file:px-4 file:py-2">
+                    <p class="text-[10px] text-slate-500 mt-2 italic">* Use imagens leves para não encher a memória.</p>
                 </div>
+                <button id="mainBtn" onclick="saveAsset()" class="w-full bg-green-600 py-6 rounded-2xl font-black text-xl hover:bg-green-500 transition shadow-lg shadow-green-900/20 active:scale-95 mt-6">SALVAR ASSET</button>
             </div>
         </div>
 
-        <div id="sectionManage" class="hidden animate__animated animate__fadeIn">
-            <div id="existingAssetsList" class="grid gap-4"></div>
+        <div id="sectionManage" class="hidden animate__animated animate__fadeIn space-y-4">
+            <div id="existingAssetsList" class="grid gap-3"></div>
         </div>
     </div>
 
