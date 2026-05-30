@@ -7,56 +7,64 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 </head>
 <body class="bg-slate-950 text-white min-h-screen">
-
     <div id="notification-container" class="fixed top-5 right-5 z-[100] flex flex-col gap-3"></div>
 
     <div id="loginOverlay" class="fixed inset-0 bg-[#0b0e14] flex items-center justify-center z-50">
-        <div class="bg-slate-900 p-10 rounded-3xl border border-white/5 w-[400px] shadow-2xl text-center">
-            <div class="mb-6 inline-block p-4 bg-blue-600/10 rounded-full text-blue-500">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            </div>
-            <h2 class="text-3xl font-black mb-2">Acesso Master</h2>
-            <p class="text-slate-400 mb-8">Digite o código para gerenciar o site</p>
-            <input type="password" id="pass" placeholder="Senha Admin" class="w-full bg-black/40 p-5 rounded-2xl mb-4 outline-none border border-white/5 focus:border-blue-500 transition text-center text-xl tracking-[10px]">
-            <button onclick="login()" class="w-full bg-blue-600 py-5 rounded-2xl font-black hover:bg-blue-500 transition shadow-lg shadow-blue-900/30 active:scale-95">DESBLOQUEAR</button>
-            <button onclick="location.href='index.html'" class="mt-4 text-slate-500 hover:text-white transition text-sm">Voltar para a Home</button>
+        <div class="bg-slate-900 p-10 rounded-3xl border border-white/5 w-[400px] text-center shadow-2xl">
+            <h2 class="text-3xl font-black mb-6">Acesso Master</h2>
+            <input type="password" id="pass" placeholder="Senha" class="w-full bg-black/40 p-5 rounded-2xl mb-4 border border-white/5 outline-none focus:border-blue-500 text-center tracking-[5px]">
+            <button onclick="login()" class="w-full bg-blue-600 py-5 rounded-2xl font-black hover:bg-blue-500 transition active:scale-95">ENTRAR</button>
         </div>
     </div>
 
     <div id="adminContent" class="hidden max-w-6xl mx-auto p-8">
-        <div class="flex justify-between items-center mb-10 bg-slate-900/50 p-6 rounded-3xl border border-white/5">
-            <h1 class="text-2xl font-black">CENTRAL DE CONTROLE</h1>
-            <div class="flex gap-4">
-                <button onclick="switchTab('create')" id="tabCreate" class="px-6 py-3 rounded-xl font-bold bg-blue-600 transition">Criar Novo</button>
-                <button onclick="switchTab('manage')" id="tabManage" class="px-6 py-3 rounded-xl font-bold bg-slate-800 transition">Meus Assets</button>
-                <button onclick="location.href='index.html'" class="px-6 py-3 rounded-xl font-bold bg-red-600/10 text-red-500 hover:bg-red-600 transition">Sair</button>
+        <div class="flex flex-wrap justify-between items-center gap-4 mb-10 bg-slate-900/50 p-6 rounded-3xl border border-white/5">
+            <h1 id="panelTitle" class="text-2xl font-black">CRIAR NOVO ASSET</h1>
+            <div class="flex gap-2">
+                <button onclick="switchTab('create')" id="tabCreate" class="px-6 py-3 rounded-xl font-bold bg-blue-600">Novo</button>
+                <button onclick="switchTab('manage')" id="tabManage" class="px-6 py-3 rounded-xl font-bold bg-slate-800">Meus Assets</button>
+                <button onclick="location.href='index.html'" class="px-4 py-3 rounded-xl bg-red-600/20 text-red-500">Sair</button>
             </div>
         </div>
 
-        <div id="sectionCreate" class="animate__animated animate__fadeIn">
+        <div id="sectionForm" class="animate__animated animate__fadeIn">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="bg-slate-900 p-8 rounded-3xl border border-white/5 space-y-5">
-                    <label class="block font-bold text-blue-400">Título do Produto</label>
-                    <input type="text" id="newTitle" placeholder="Ex: Texturas 4K Realistas" class="w-full bg-black/50 p-4 rounded-xl border border-white/5">
+                <div class="bg-slate-900 p-8 rounded-3xl border border-white/5 space-y-4">
+                    <input type="hidden" id="editId">
+                    <label class="block font-bold text-blue-400">Título</label>
+                    <input type="text" id="assetTitle" class="w-full bg-black/50 p-4 rounded-xl border border-white/5">
                     
-                    <label class="block font-bold text-blue-400">Imagem de Capa (Local)</label>
-                    <input type="file" id="newImg" accept="image/*" class="w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500">
-                    
-                    <label class="block font-bold text-blue-400">Arquivo do Asset</label>
-                    <input type="file" id="newFile" class="w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-slate-700 file:text-white hover:file:bg-slate-600">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block font-bold text-blue-400">Status</label>
+                            <select id="assetStatus" class="w-full bg-black/50 p-4 rounded-xl border border-white/5">
+                                <option value="nenhum">Nenhum</option>
+                                <option value="novo">Novo</option>
+                                <option value="limitado">Limitado</option>
+                                <option value="recomendado">Recomendado</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-bold text-red-400">Falha</label>
+                            <select id="assetFail" class="w-full bg-black/50 p-4 rounded-xl border border-white/5">
+                                <option value="none">Nenhuma</option>
+                                <option value="404">Erro 404</option>
+                                <option value="virus">Vírus</option>
+                                <option value="limit">Limite</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="bg-slate-900 p-8 rounded-3xl border border-white/5 flex flex-col justify-between">
-                    <div>
-                        <label class="block font-bold text-red-500 mb-4">Configurar Falha de Download</label>
-                        <select id="newFail" class="w-full bg-black/50 p-4 rounded-xl border border-white/5 mb-6">
-                            <option value="none">Nenhuma (Funciona)</option>
-                            <option value="404">Erro 404 - Indisponível</option>
-                            <option value="virus">Alerta de Arquivo Infectado</option>
-                            <option value="limit">Limite de Banda Excedido</option>
-                        </select>
+                <div class="bg-slate-900 p-8 rounded-3xl border border-white/5 space-y-4">
+                    <label class="block font-bold text-blue-400">Capa & Arquivo</label>
+                    <input type="file" id="assetImg" accept="image/*" class="w-full text-sm">
+                    <input type="file" id="assetFile" class="w-full text-sm">
+                    
+                    <div class="pt-4">
+                        <button id="mainBtn" onclick="saveAsset()" class="w-full bg-green-600 py-6 rounded-2xl font-black text-xl hover:bg-green-500 transition">SALVAR ASSET</button>
+                        <button id="cancelBtn" onclick="resetForm()" class="hidden w-full mt-2 text-slate-500 hover:text-white transition">Cancelar Edição</button>
                     </div>
-                    <button onclick="saveAsset()" class="w-full bg-green-600 py-6 rounded-2xl font-black text-2xl hover:bg-green-500 shadow-xl shadow-green-900/20 transition active:scale-95">SALVAR PRODUTO</button>
                 </div>
             </div>
         </div>
