@@ -3,28 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AssetForge | Hub de Assets</title>
+    <title>AssetForge | Hub Ilimitado</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <style>
         .badge-novo { background: #10b981; }
         .badge-limitado { background: #f59e0b; }
         .badge-recomendado { background: #8b5cf6; }
+        .btn-glow:hover { box-shadow: 0 0 20px rgba(37, 99, 235, 0.6); transform: scale(1.02); }
     </style>
 </head>
 <body class="bg-[#0b0e14] text-white min-h-screen">
     <div id="notification-container" class="fixed top-5 right-5 z-[100] flex flex-col gap-3"></div>
 
-    <nav class="flex justify-between items-center px-10 py-6 border-b border-white/5 bg-[#0b0e14] sticky top-0 z-40">
-        <div class="text-2xl font-black tracking-tighter text-blue-500 cursor-pointer" onclick="location.href='index.html'">ASSET<span class="text-white">FORGE</span></div>
+    <nav class="flex justify-between items-center px-10 py-6 border-b border-white/5 sticky top-0 bg-[#0b0e14]/90 backdrop-blur-md z-40">
+        <div class="text-2xl font-black text-blue-500 cursor-pointer" onclick="location.href='index.html'">ASSET<span class="text-white">FORGE</span></div>
         <a href="admin.html" class="bg-blue-600 px-6 py-2 rounded-full font-bold hover:bg-blue-500 transition">Painel Admin</a>
     </nav>
 
     <main class="container mx-auto px-6 py-12">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="assetGrid">
-            </div>
+        <div id="assetGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
     </main>
-
     <script src="script.js"></script>
 </body>
 </html>
