@@ -1,7 +1,7 @@
 let assets = JSON.parse(localStorage.getItem('forge_assets')) || [];
 let assetToDelete = null;
 
-// NOTIFICAÇÕES
+// NOTIFICATIONS
 function showNotify(text, type = 'success') {
     const container = document.getElementById('notification-container');
     if(!container) return;
@@ -16,7 +16,7 @@ function showNotify(text, type = 'success') {
     }, 3000);
 }
 
-// LOGIN COM ENTER
+// LOGIN WITH ENTER KEY
 const passInput = document.getElementById('pass');
 if(passInput) {
     passInput.addEventListener('keypress', (e) => {
@@ -29,13 +29,13 @@ function login() {
         document.getElementById('loginOverlay').classList.add('hidden');
         document.getElementById('adminContent').classList.remove('hidden');
         renderManageList();
-        showNotify("Acesso concedido!");
+        showNotify("Access granted!");
     } else {
-        showNotify("Senha incorreta!", "error");
+        showNotify("Incorrect password!", "error");
     }
 }
 
-// CONVERSÃO DE IMAGEM
+// IMAGE CONVERSION
 const toBase64 = file => new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -43,7 +43,7 @@ const toBase64 = file => new Promise((resolve, reject) => {
     reader.onerror = error => reject(error);
 });
 
-// SALVAR ASSET (CORRIGIDO PARA EVITAR ERRO DE MEMÓRIA)
+// SAVE ASSET
 async function saveAsset() {
     const id = document.getElementById('editId').value;
     const title = document.getElementById('assetTitle').value;
@@ -53,25 +53,25 @@ async function saveAsset() {
     const fail = document.getElementById('assetFail').value;
     const imgInput = document.getElementById('assetImg');
 
-    if (!title || !fileUrl) return showNotify("Título e Link são obrigatórios!", "error");
+    if (!title || !fileUrl) return showNotify("Title and Link are required!", "error");
 
     try {
         if (id) {
-            // MODO EDIÇÃO
+            // EDIT MODE
             let a = assets.find(x => x.id == id);
             a.title = title; a.desc = desc; a.fileUrl = fileUrl; a.status = status; a.fail = fail;
             
-            // Só tenta processar imagem se o usuário selecionou uma nova
+            // Only process image if a new one is selected
             if (imgInput.files && imgInput.files[0]) {
                 a.img = await toBase64(imgInput.files[0]);
             }
-            showNotify("Asset atualizado!");
+            showNotify("Asset updated!");
         } else {
-            // MODO CRIAÇÃO
-            if (!imgInput.files || !imgInput.files[0]) return showNotify("Selecione uma imagem de capa!", "error");
+            // CREATE MODE
+            if (!imgInput.files || !imgInput.files[0]) return showNotify("Please select a cover image!", "error");
             const imgData = await toBase64(imgInput.files[0]);
             assets.push({ id: Date.now(), title, desc, fileUrl, status, fail, img: imgData });
-            showNotify("Asset criado!");
+            showNotify("Asset created!");
         }
         
         localStorage.setItem('forge_assets', JSON.stringify(assets));
@@ -80,15 +80,20 @@ async function saveAsset() {
         switchTab('manage');
     } catch (e) {
         console.error(e);
-        showNotify("Erro: O navegador ficou sem memória! Delete assets antigos ou use imagens menores.", "error");
+        showNotify("Error: Browser out of memory! Delete old assets or use smaller images.", "error");
     }
 }
 
-// RENDERIZAR NA INDEX
+// RENDER ON INDEX (HOME)
 if (document.getElementById('assetGrid')) {
     const grid = document.getElementById('assetGrid');
     assets.forEach(a => {
-        const badge = a.status && a.status !== 'nenhum' ? `<span class="absolute top-4 left-4 px-3 py-1 rounded-full text-[10px] font-black uppercase badge-${a.status} z-10">${a.status}</span>` : '';
+        // Translation for the dynamic badges
+        const statusLabels = { 'nenhum': '', 'novo': 'New', 'limitado': 'Limited', 'recomendado': 'Recommended' };
+        const label = statusLabels[a.status] || a.status;
+        
+        const badge = a.status && a.status !== 'nenhum' ? `<span class="absolute top-4 left-4 px-3 py-1 rounded-full text-[10px] font-black uppercase badge-${a.status} z-10">${label}</span>` : '';
+        
         grid.innerHTML += `
             <div class="asset-card relative bg-slate-900 border border-white/5 rounded-3xl overflow-hidden group hover:border-blue-500 transition-all duration-300">
                 ${badge}
@@ -99,31 +104,34 @@ if (document.getElementById('assetGrid')) {
                     <div class="h-52 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style="background-image: url('${a.img}')"></div>
                     <div class="p-6">
                         <h3 class="text-xl font-bold mb-2 transition-colors">${a.title}</h3>
-                        <p class="text-slate-500 text-sm line-clamp-2">${a.desc || 'Clique para ver detalhes.'}</p>
+                        <p class="text-slate-500 text-sm line-clamp-2">${a.desc || 'Click to see details.'}</p>
                     </div>
                 </div>
             </div>`;
     });
 }
 
-// LOGICA PARA ASSET.HTML (PÁGINA INDIVIDUAL)
+// LOGIC FOR ASSET.HTML (DETAILS PAGE)
 if (document.getElementById('assetDetailContent')) {
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
     const a = assets.find(x => x.id == id);
 
     if (a) {
+        const statusLabels = { 'nenhum': 'Standard', 'novo': 'New', 'limitado': 'Limited', 'recomendado': 'Recommended' };
+        const label = statusLabels[a.status] || a.status;
+
         document.getElementById('assetDetailContent').innerHTML = `
             <div class="bg-slate-900 rounded-3xl overflow-hidden border border-white/5 shadow-2xl">
                 <img src="${a.img}" class="w-full h-[450px] object-cover">
                 <div class="p-10 text-left">
                     <div class="flex justify-between items-center mb-6">
                         <h1 class="text-4xl font-black">${a.title}</h1>
-                        <span class="px-4 py-2 rounded-full text-[10px] font-black uppercase bg-blue-600/20 text-blue-400 border border-blue-500/20">${a.status}</span>
+                        <span class="px-4 py-2 rounded-full text-[10px] font-black uppercase bg-blue-600/20 text-blue-400 border border-blue-500/20">${label}</span>
                     </div>
                     <div class="bg-black/20 p-6 rounded-2xl border border-white/5 mb-8">
-                        <h3 class="text-blue-500 font-bold mb-2 uppercase text-xs">Descrição</h3>
-                        <p class="text-slate-300 leading-relaxed whitespace-pre-line">${a.desc || 'Nenhuma descrição técnica disponível.'}</p>
+                        <h3 class="text-blue-500 font-bold mb-2 uppercase text-xs">Description</h3>
+                        <p class="text-slate-300 leading-relaxed whitespace-pre-line">${a.desc || 'No technical description available.'}</p>
                     </div>
                     <button onclick="handleDownload('${a.id}')" class="w-full bg-blue-600 py-6 rounded-2xl font-black text-2xl hover:bg-blue-500 transition shadow-xl shadow-blue-900/30">
                         DOWNLOAD
@@ -133,7 +141,7 @@ if (document.getElementById('assetDetailContent')) {
     }
 }
 
-// FUNÇÕES DE ADMIN
+// ADMIN FUNCTIONS
 function resetForm() {
     document.getElementById('editId').value = "";
     document.getElementById('assetTitle').value = "";
@@ -146,10 +154,10 @@ function resetForm() {
 function handleDownload(id) {
     const a = assets.find(x => x.id == id);
     if (a.fail === 'none') {
-        showNotify("Iniciando...");
+        showNotify("Starting...");
         window.open(a.fileUrl, '_blank');
     } else {
-        const e = { '404': "ERRO 404", 'virus': "RISCO: Vírus!", 'limit': "LIMITE EXCEDIDO" };
+        const e = { '404': "ERROR 404", 'virus': "RISK: Virus detected!", 'limit': "LIMIT EXCEEDED" };
         showNotify(e[a.fail], "error");
     }
 }
@@ -163,7 +171,7 @@ function switchTab(t) {
 function renderManageList() {
     const l = document.getElementById('existingAssetsList');
     if(!l) return;
-    l.innerHTML = assets.length ? "" : "<p class='text-slate-500 text-center py-10'>Vazio.</p>";
+    l.innerHTML = assets.length ? "" : "<p class='text-slate-500 text-center py-10'>Empty.</p>";
     assets.forEach(a => {
         l.innerHTML += `
             <div class="flex items-center justify-between bg-slate-900 p-4 rounded-2xl border border-white/5">
@@ -172,8 +180,8 @@ function renderManageList() {
                     <span class="font-bold text-sm">${a.title}</span>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="prepareEdit(${a.id})" class="bg-blue-600/10 text-blue-400 px-4 py-2 rounded-xl text-xs font-bold uppercase">Editar</button>
-                    <button onclick="openDeleteModal(${a.id})" class="bg-red-600/10 text-red-500 px-4 py-2 rounded-xl text-xs font-bold uppercase">Apagar</button>
+                    <button onclick="prepareEdit(${a.id})" class="bg-blue-600/10 text-blue-400 px-4 py-2 rounded-xl text-xs font-bold uppercase">Edit</button>
+                    <button onclick="openDeleteModal(${a.id})" class="bg-red-600/10 text-red-500 px-4 py-2 rounded-xl text-xs font-bold uppercase">Delete</button>
                 </div>
             </div>`;
     });
@@ -187,11 +195,11 @@ function prepareEdit(id) {
     document.getElementById('assetFileUrl').value = a.fileUrl;
     document.getElementById('assetStatus').value = a.status || 'nenhum';
     document.getElementById('assetFail').value = a.fail || 'none';
-    document.getElementById('panelTitle').innerText = "Editando: " + a.title;
+    document.getElementById('panelTitle').innerText = "Editing: " + a.title;
     switchTab('create');
 }
 
-// FUNÇÕES DE EXCLUSÃO (Modal)
+// DELETE MODAL FUNCTIONS
 function openDeleteModal(id) {
     assetToDelete = id;
     document.getElementById('deleteModal').classList.remove('hidden');
@@ -204,5 +212,5 @@ document.getElementById('confirmDeleteBtn')?.addEventListener('click', () => {
     localStorage.setItem('forge_assets', JSON.stringify(assets));
     renderManageList();
     closeDeleteModal();
-    showNotify("Asset removido!");
+    showNotify("Asset removed!");
 });
