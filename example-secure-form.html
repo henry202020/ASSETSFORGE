@@ -1,0 +1,385 @@
+<!-- 
+    🔐 EXEMPLO DE FORMULÁRIO SEGURO
+    Este arquivo mostra como implementar segurança no frontend
+    Copie e adapte para seu projeto
+-->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    
+    <!-- ✅ Content Security Policy - Proteção contra XSS -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' 'nonce-abc123';
+        style-src 'self' 'unsafe-inline';
+        img-src 'self' data: https:;
+        connect-src 'self' https://api.exemplo.com;
+        frame-ancestors 'none';
+    ">
+    
+    <!-- ✅ Outras proteções -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    
+    <title>Formulário Seguro</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .output {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            min-height: 100px;
+        }
+        .error {
+            color: #d32f2f;
+            margin-top: 10px;
+        }
+        .success {
+            color: #388e3c;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔐 Formulário Seguro</h1>
+    
+    <!-- Formulário com segurança -->
+    <div class="form-section">
+        <form id="secureForm">
+            <div class="form-group">
+                <label for="username">Nome de Usuário:</label>
+                <input 
+                    type="text" 
+                    id="username" 
+                    name="username"
+                    placeholder="Digite seu usuário"
+                    maxlength="50"
+                    required
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email"
+                    placeholder="seu@email.com"
+                    required
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="message">Mensagem:</label>
+                <textarea 
+                    id="message" 
+                    name="message"
+                    placeholder="Sua mensagem aqui"
+                    maxlength="500"
+                    rows="5"
+                ></textarea>
+            </div>
+            
+            <button type="submit">Enviar</button>
+        </form>
+    </div>
+    
+    <!-- Área de saída segura -->
+    <div class="output" id="output"></div>
+    
+    <!-- ✅ Script Local e Seguro -->
+    <script nonce="abc123">
+        'use strict'; // Ativa modo seguro
+        
+        // Configurações
+        const FORM_ID = 'secureForm';
+        const OUTPUT_ID = 'output';
+        const MAX_USERNAME_LENGTH = 50;
+        const MAX_MESSAGE_LENGTH = 500;
+        
+        // Padrões de validação
+        const PATTERNS = {
+            username: /^[a-zA-Z0-9_]{3,50}$/,
+            email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+            message: /^[a-zA-Z0-9\s,.\-!?'"();:]/
+        };
+        
+        // ======================================
+        // 🔐 FUNÇÕES DE SEGURANÇA
+        // ======================================
+        
+        /**
+         * Validar entrada do usuário
+         */
+        function validateInput(username, email, message) {
+            const errors = [];
+            
+            // Validar username
+            if (!username || username.length === 0) {
+                errors.push('✗ Usuário é obrigatório');
+            } else if (username.length < 3 || username.length > MAX_USERNAME_LENGTH) {
+                errors.push(`✗ Usuário deve ter 3-${MAX_USERNAME_LENGTH} caracteres`);
+            } else if (!PATTERNS.username.test(username)) {
+                errors.push('✗ Usuário só pode conter letras, números e underline');
+            }
+            
+            // Validar email
+            if (!email || email.length === 0) {
+                errors.push('✗ Email é obrigatório');
+            } else if (!PATTERNS.email.test(email)) {
+                errors.push('✗ Email inválido');
+            } else if (email.length > 254) {
+                errors.push('✗ Email muito longo');
+            }
+            
+            // Validar message
+            if (message && message.length > MAX_MESSAGE_LENGTH) {
+                errors.push(`✗ Mensagem deve ter no máximo ${MAX_MESSAGE_LENGTH} caracteres`);
+            }
+            
+            // Verificar caracteres perigosos
+            const dangerousChars = /[<>"`${}]/g;
+            if (dangerousChars.test(username) || dangerousChars.test(message)) {
+                errors.push('✗ Entrada contém caracteres não permitidos');
+            }
+            
+            return {
+                valid: errors.length === 0,
+                errors: errors
+            };
+        }
+        
+        /**
+         * Escapar HTML - Previne XSS
+         */
+        function escapeHTML(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return String(text).replace(/[&<>"']/g, m => map[m]);
+        }
+        
+        /**
+         * Sanitizar entrada de forma segura
+         */
+        function sanitizeInput(input) {
+            // Remover espaços em branco desnecessários
+            let clean = String(input).trim();
+            
+            // Remover caracteres de controle
+            clean = clean.replace(/[\x00-\x1F\x7F]/g, '');
+            
+            return clean;
+        }
+        
+        /**
+         * Exibir dados de forma segura usando textContent
+         */
+        function displayDataSafely(data) {
+            const output = document.getElementById(OUTPUT_ID);
+            output.innerHTML = ''; // Limpar
+            
+            // ✅ SEGURO: Usar textContent (sem XSS)
+            const userInfo = document.createElement('div');
+            userInfo.textContent = `Usuário: ${data.username}`;
+            output.appendChild(userInfo);
+            
+            const emailInfo = document.createElement('div');
+            emailInfo.textContent = `Email: ${data.email}`;
+            output.appendChild(emailInfo);
+            
+            if (data.message) {
+                const messageInfo = document.createElement('p');
+                messageInfo.textContent = `Mensagem: ${data.message}`;
+                output.appendChild(messageInfo);
+            }
+            
+            // Adicionar confirmação
+            const success = document.createElement('div');
+            success.className = 'success';
+            success.textContent = '✓ Dados recebidos com sucesso!';
+            output.appendChild(success);
+        }
+        
+        /**
+         * Exibir erros de forma segura
+         */
+        function displayErrors(errors) {
+            const output = document.getElementById(OUTPUT_ID);
+            output.innerHTML = ''; // Limpar
+            
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            
+            // Criar lista de erros seguramente
+            const errorList = document.createElement('ul');
+            errors.forEach(error => {
+                const li = document.createElement('li');
+                li.textContent = error; // ✅ SEGURO: textContent
+                errorList.appendChild(li);
+            });
+            
+            errorDiv.appendChild(errorList);
+            output.appendChild(errorDiv);
+        }
+        
+        /**
+         * Fazer requisição segura
+         */
+        async function makeSecureRequest(url, data) {
+            try {
+                // Validar URL
+                if (!isValidURL(url)) {
+                    throw new Error('URL inválida');
+                }
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin', // Incluir cookies HTTPOnly
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('Erro na requisição:', error);
+                throw error;
+            }
+        }
+        
+        /**
+         * Validar URL
+         */
+        function isValidURL(url) {
+            try {
+                const urlObj = new URL(url);
+                // Apenas HTTPS para URLs externas
+                return urlObj.protocol === 'https:' || 
+                       urlObj.origin === window.location.origin;
+            } catch (_) {
+                return false;
+            }
+        }
+        
+        /**
+         * Verificar se há scripts suspeitos
+         */
+        function hasScriptInjection(text) {
+            const scriptPatterns = [
+                /<script/i,
+                /javascript:/i,
+                /on\w+\s*=/i, // onerror=, onclick=, etc
+                /<iframe/i,
+                /<object/i,
+                /<embed/i
+            ];
+            
+            return scriptPatterns.some(pattern => pattern.test(text));
+        }
+        
+        // ======================================
+        // 📋 EVENT LISTENERS
+        // ======================================
+        
+        // Quando formulário é submetido
+        document.getElementById(FORM_ID).addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevenir submit padrão
+            
+            // Obter valores
+            const username = sanitizeInput(document.getElementById('username').value);
+            const email = sanitizeInput(document.getElementById('email').value);
+            const message = sanitizeInput(document.getElementById('message').value);
+            
+            // Validar
+            const validation = validateInput(username, email, message);
+            
+            if (!validation.valid) {
+                displayErrors(validation.errors);
+                return;
+            }
+            
+            // Verificar injeção de script
+            if (hasScriptInjection(username) || hasScriptInjection(message)) {
+                displayErrors(['✗ Entrada contém código suspeito']);
+                return;
+            }
+            
+            // Exibir dados de forma segura
+            displayDataSafely({
+                username: username,
+                email: email,
+                message: message
+            });
+            
+            // Limpar formulário
+            document.getElementById(FORM_ID).reset();
+            
+            console.log('✅ Formulário processado com segurança!');
+        });
+        
+        // ======================================
+        // 🔍 VERIFICAÇÕES INICIAIS
+        // ======================================
+        
+        // Verificar HTTPS
+        if (window.location.protocol !== 'https:' && 
+            window.location.hostname !== 'localhost') {
+            console.warn('⚠️ Use HTTPS em produção!');
+        }
+        
+        // Verificar CSP
+        console.log('✅ Content Security Policy ativa');
+        
+        console.log('✅ Script carregado com segurança!');
+    </script>
+</body>
+</html>
